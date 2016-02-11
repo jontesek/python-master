@@ -1,8 +1,6 @@
 import json
 import urllib2
 
-from pprint import pprint
-
 
 class CurrencyConverter(object):
 
@@ -22,26 +20,43 @@ class CurrencyConverter(object):
         # Get current rates
         try:
             rates_data = self._get_rates('file')
-            base = rates_data['base']
-            rates = rates_data['rates']
-            # Calc amount in the base currency.
-            base_amount = in_amount / float(rates[input_cur])
-            # Calc amount in the output currency (based on amount in base currency).
-            out_amount = base_amount * rates[output_cur]
-            # Create a final return object
-            return out_amount
-
-        except IOError, e:
-            print("Could not read Rates file.")
-            print(e)
         except urllib2.HTTPError, e:
             print("There was an error while downloading data from the API.")
             print(e)
+            return False
+        except IOError, e:
+            print("Could not read Rates file.")
+            print(e)
+            return False
+        # Get main values
+        rates = rates_data['rates']
+        # Check if currency codes are valid.
+        if input_cur not in rates or (output_cur is not False and output_cur not in rates):
+            raise ValueError("Unknow currency code entered.")
+        # Calc amount in the base currency.
+        base_amount = in_amount / rates[input_cur]
 
+        # Calculate amount in the output currency/all currencies (based on amount in base currency).
+        out_amounts = {}
+        if output_cur:
+            out_amounts[input_cur] = base_amount * rates[output_cur]
+        else:
+            for ccode, exchange_rate in rates.items():
+                out_amounts[ccode] = base_amount * exchange_rate
+
+        # Create the final return object
+        result_dict = {
+            'input': {
+                'amount': in_amount,
+                'currency': input_cur,
+            },
+            'output': out_amounts,
+        }
+        return json.dumps(result_dict)
 
     def _get_rates(self, source):
         """
-        Returns dictionary with "base" (base currency), "rates", "date" fields.
+        Returns dictionary with "base" (base currency), "rates", "timestamp" fields.
         :param source: file or api
         :return: dictionary
         """

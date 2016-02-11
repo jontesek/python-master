@@ -6,3 +6,15 @@ https://currencylayer.com/
 https://openexchangerates.org/
 
 http://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html (also i.e. through http://fixer.io/).
+
+===JSON===
+
+Using json.tool from the shell to validate and pretty-print:
+
+$ echo '{"json":"obj"}' | python -mjson.tool
+{
+    "json": "obj"
+}
+$ echo '{1.2:3.4}' | python -mjson.tool
+Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
