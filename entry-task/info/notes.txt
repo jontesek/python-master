@@ -4,3 +4,5 @@ NOTES
 https://currencylayer.com/
 
 https://openexchangerates.org/
+
+http://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html (also i.e. through http://fixer.io/).
