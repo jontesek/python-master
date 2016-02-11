@@ -1,0 +1,6 @@
+NOTES
+
+===APIs===
+https://currencylayer.com/
+
+https://openexchangerates.org/
