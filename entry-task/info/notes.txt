@@ -18,3 +18,10 @@ $ echo '{"json":"obj"}' | python -mjson.tool
 $ echo '{1.2:3.4}' | python -mjson.tool
 Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
 
+==Calculation==
+task: convert 10 EUR to CZK if you have only base USD rates
+
+base_amount = in_amount / (usd->eur) = 10 / 0.885991 = 11.286796
+
+out_amount = base_amount * out_rate = 11.286796 * 23.94491 = 270.261314
+

@@ -12,7 +12,7 @@ with open(os.path.abspath(current_dir+'/config.txt')) as config_file:
     app_id = config_file.read().strip()
 
 # Set rates filepath.
-rates_filepath = os.path.abspath(current_dir+'/test_files/latest.json')
+rates_filepath = os.path.abspath(current_dir+'/rates_files/latest.json')
 
 # Create the main object.
 converter = CurrencyConverter(app_id, "file", rates_filepath)

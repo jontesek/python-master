@@ -14,14 +14,17 @@ class CurrencyConverter(object):
         :param rates_filepath: Absolute path to the rates file.
         :return:
         """
+        # Check rates_read_move validity.
+        if rates_read_mode not in ['file', 'file_no_update', 'api']:
+            raise ValueError("Rates_read_move invalid value.")
         # Set the correct API URL
         self.rates_url = 'https://openexchangerates.org/api/latest.json?app_id='+app_id
         # Check if rates file is set and exists.
         if rates_filepath and not os.path.isfile(rates_filepath):
-            raise ValueError('Wrong path to the Rates file: ' + rates_filepath)
+            raise IOError('Wrong path to the Rates file: ' + rates_filepath, 1)
         # If rates file is missing, rates_read_mode must be set to "api".
         if not rates_filepath and rates_read_mode != 'api':
-            raise ValueError("If rates file is missing, rates_read_mode must be set to 'api'.")
+            raise ValueError("If rates file is missing, rates_read_mode must be set to 'api'.", 2)
         # Set it and rates read mode.
         self.rates_filepath = rates_filepath
         self.rates_read_mode = rates_read_mode
@@ -29,7 +32,7 @@ class CurrencyConverter(object):
     def convert(self, in_amount, input_cur, output_cur=False):
         """
         Convert given amount of money in input currency to actual amount of money in output currency.
-        :param in_amount: float
+        :param in_amount: float | int
         :param input_cur: string
         :param output_cur: string or False
         :return: JSON result
@@ -51,18 +54,22 @@ class CurrencyConverter(object):
 
         # Check if currency codes are valid.
         if input_cur not in rates or (output_cur is not False and output_cur not in rates):
-            raise ValueError("Unknow currency code entered.")
+            raise ValueError("Unknow currency code entered.", 5)
+
+        # Check if the input amount is a number.
+        if not isinstance(in_amount, (int, long, float)):
+            raise ValueError("Input amount is not a number.", 6)
 
         # Calc amount in the base currency.
-        base_amount = in_amount / rates[input_cur]
+        base_amount = round(in_amount / rates[input_cur], 6)
 
         # Calculate amount in the output currency/all currencies (based on amount in base currency).
         out_amounts = {}
         if output_cur:
-            out_amounts[input_cur] = base_amount * rates[output_cur]
+            out_amounts[output_cur] = round(base_amount * rates[output_cur], 2)
         else:
             for ccode, exchange_rate in rates.items():
-                out_amounts[ccode] = base_amount * exchange_rate
+                out_amounts[ccode] = round(base_amount * exchange_rate, 2)
 
         # Create the final return object
         result_dict = {
@@ -86,10 +93,13 @@ class CurrencyConverter(object):
             return json.loads(rates_json)
 
         # Get data from rates file.
-        if source == 'file':
+        if source == 'file' or source == 'file_no_update':
             with open(self.rates_filepath) as rates_file:
                 # Get data from the file.
                 rf_dict = json.load(rates_file)
+                # If set, just return the file (no update).
+                if source == 'file_no_update':
+                    return rf_dict
                 # Check if the file is older than 1 hour.
                 if rf_dict['timestamp'] < (int(time.time()) - 3600):
                     source = 'api_save'     # continue with the code below

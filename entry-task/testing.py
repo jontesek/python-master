@@ -8,7 +8,7 @@ with open('config.txt') as config_file:
 
 # Filepaths
 current_dir = os.path.dirname(os.path.realpath(__file__))
-rates_filepath = os.path.abspath(current_dir+'/test_files/latest.json')
+rates_filepath = os.path.abspath(current_dir+'/rates_files/latest.json')
 
 # The main object
 converter = CurrencyConverter(app_id, 'file', rates_filepath)
@@ -16,5 +16,6 @@ converter = CurrencyConverter(app_id, 'file', rates_filepath)
 result = converter.convert(10, 'EUR', 'CZK')
 #result = converter.convert(10, 'EUR', 'EFKA')
 #result = converter.convert(10, 'EUR')
+#result = converter.convert(100, 'CZK', 'USD')
 
 print(result)
