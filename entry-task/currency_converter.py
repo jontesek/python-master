@@ -15,7 +15,7 @@ with open(os.path.abspath(current_dir+'/config.txt')) as config_file:
 rates_filepath = os.path.abspath(current_dir+'/test_files/latest.json')
 
 # Create the main object.
-converter = CurrencyConverter(app_id, rates_filepath)
+converter = CurrencyConverter(app_id, "file", rates_filepath)
 
 
 # If the file was imported (as module).

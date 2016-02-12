@@ -1,0 +1,4 @@
+TASKS
+
+- better docs
+- read file in constructor?
