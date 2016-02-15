@@ -14,18 +14,21 @@ class CurrencyConverter(object):
         :param rates_filepath: Absolute path to the rates file.
         :return:
         """
+        # Set the correct API URL
+        self.rates_url = 'https://openexchangerates.org/api/latest.json?app_id='+app_id
+
+        ## PARAMETERS CHECK
         # Check rates_read_move validity.
         if rates_read_mode not in ['file', 'file_no_update', 'api']:
             raise ValueError("Rates_read_move invalid value.")
-        # Set the correct API URL
-        self.rates_url = 'https://openexchangerates.org/api/latest.json?app_id='+app_id
-        # Check if rates file is set and exists.
+        # Check if rates file is set, it exists.
         if rates_filepath and not os.path.isfile(rates_filepath):
             raise IOError('Wrong path to the Rates file: ' + rates_filepath, 1)
         # If rates file is missing, rates_read_mode must be set to "api".
         if not rates_filepath and rates_read_mode != 'api':
             raise ValueError("If rates file is missing, rates_read_mode must be set to 'api'.", 2)
-        # Set it and rates read mode.
+
+        # Set variables.
         self.rates_filepath = rates_filepath
         self.rates_read_mode = rates_read_mode
 
