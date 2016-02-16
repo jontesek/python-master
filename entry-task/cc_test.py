@@ -49,12 +49,12 @@ class TestCurrencyConverter(unittest.TestCase):
         except Exception, e:
             self.fail(e)
 
-    # Test convert method
+    # Test convert method - exceptions
 
     def test_convert_1(self):
         """When input amount is not a number, raise an exception."""
         with self.assertRaises(ValueError) as context:
-            self.c_converter.convert('wrong', 'EUR', 'CZK')
+            self.c_converter.convert('wro145ng', 'EUR', 'CZK')
         self.assertTrue(6 in context.exception)
 
     def test_convert_2(self):
@@ -68,6 +68,30 @@ class TestCurrencyConverter(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             self.c_converter.convert(10, 'EUR', 'XCZK')
         self.assertTrue(5 in context.exception)
+
+    # Test convert method - returned JSON
+
+    def test_convert_json(self):
+        """Check if the returned string is valid JSON with given structure and correct content."""
+        result_str = self.c_converter.convert(10, 'EUR', 'CZK')
+        try:
+            # Read JSON string to Python dictionary
+            r_dict = json.loads(result_str)
+            # Check input fields
+            j_input = r_dict['input']
+            if j_input['amount'] != 10 or j_input['currency'] != 'EUR':
+                raise ValueError("Incorrect input fields.")
+            # Check output fields
+            if r_dict['output']['CZK'] != 270.26:
+                raise ValueError("Incorrect output value.")
+        except ValueError, e:
+            msg = 'Convert() method does not return a valid JSON string with correct content.\n' + str(e)
+            self.fail(msg)
+        except KeyError, e:
+            msg = 'Convert() method does not return JSON string with necessary fields.\n' + str(e)
+            self.fail(msg)
+
+    # Test convert method - output values
 
     def test_convert_4(self):
         """Convert EUR to all currencies."""
@@ -92,9 +116,6 @@ class TestCurrencyConverter(unittest.TestCase):
         dict_data = json.loads(self.c_converter.convert(239.4491, 'CZK', 'USD'))
         out_amount = dict_data['output']['USD']
         self.assertEqual(out_amount, 10)
-
-
-
 
 
 # Run all tests when the file is run from terminal.

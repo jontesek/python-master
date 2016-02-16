@@ -28,7 +28,8 @@ if __name__ == '__main__':
     import argparse
 
     # Parse the incoming arguments
-    # example: ./currency_converter.py --amount 100.0 --input_currency EUR --output_currency CZK
+    # example 1: ./currency_converter.py --amount 100.0 --input_currency EUR --output_currency CZK
+    # example 2: ./currency_converter.py --amount 0.9 --input_currency ¥ --output_currency AUD
     parser = argparse.ArgumentParser(description='Currency Converter in Python')
     parser.add_argument('--amount', action='store', help='amount of money to convert',
                         metavar='<float>', required=True)
@@ -46,6 +47,7 @@ if __name__ == '__main__':
         else:
             result = converter.convert(float(args.amount), args.input_currency)
     except Exception, e:
+        print(e)
         raise SystemExit(e)
 
     # show result

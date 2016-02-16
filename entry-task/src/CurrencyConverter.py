@@ -8,11 +8,14 @@ class CurrencyConverter(object):
 
     def __init__(self, app_id, rates_read_mode, rates_filepath=False):
         """
-        Constructor
-        :param app_id: API key for openexchangerates.org API.
-        :param rates_read_mode: file | api
-        :param rates_filepath: Absolute path to the rates file.
-        :return:
+        Args:
+            app_id (string): API key for openexchangerates.org.
+            rates_read_mode (string): "api", "file", "file_no_update".
+            rates_filepath (string): Absolute path to the rates file.
+
+        Raises:
+            ValueError: Invalid rates_read_mode value.
+            IOError: Rates file does not exist.
         """
         # Set the correct API URL
         self.rates_url = 'https://openexchangerates.org/api/latest.json?app_id='+app_id
@@ -35,22 +38,39 @@ class CurrencyConverter(object):
     def convert(self, in_amount, input_cur, output_cur=False):
         """
         Convert given amount of money in input currency to actual amount of money in output currency.
-        :param in_amount: float | int
-        :param input_cur: string
-        :param output_cur: string or False
-        :return: JSON result
+        If output currency parameter is missing, convert to all known currencies.
+
+        Args:
+            in_amount (float | int): Amount of money to convert.
+            input_cur (string): From currency (3 letter code).
+            output_cur (string | False): To currency (3 letter code).
+
+        Returns:
+            JSON string in the following format:
+            {
+                "input": {
+                    "amount": 100.0,
+                    "currency": "EUR"
+                },
+                "output": {
+                    "CZK": 2707.36,
+                }
+            }
+
+        Raises:
+            ValueError: Unknown currency code. | Input is not a number. | Invalid JSON response or file.
+            urllib2.HTTPError: Could not download data from the API.
+            IOError: Could not read Rates file.
         """
         # Get current rates
         try:
             rates_data = self._get_rates(self.rates_read_mode)
         except urllib2.HTTPError, e:
-            print("There was an error while downloading data from the API.")
-            print(e)
-            return False
+            msg = "There was an error while downloading data from the API.\n" + e.message
+            raise urllib2.HTTPError(msg)
         except IOError, e:
-            print("Could not read Rates file.")
-            print(e)
-            return False
+            msg = "Could not read Rates file.\n" + e.message
+            raise IOError(msg)
 
         # Get main values
         rates = rates_data['rates']
@@ -86,14 +106,33 @@ class CurrencyConverter(object):
 
     def _get_rates(self, source):
         """
-        Returns dictionary with "base" (base currency), "rates", "timestamp" fields.
-        :param source: file or api
-        :return: dictionary
+        Get actual exchange rates for all known currencies.
+
+        Args:
+            source (string): "api", "file", "file_no_update"
+
+        Returns:
+            Dictionary containing base currency, rates (code and value pairs ) and UNIX timestamp (time of the rates).
+            For example:
+            {
+                "timestamp": 1455274808,
+                "base": "USD",
+                "rates": {
+                    "AED": 3.673075,
+                    "AFN": 68.879999,
+                    ...
+                }
+            }
+
+        Raises:
+            ValueError: No JSON object could be decoded -> invalid JSON response or file.
+            urllib2.HTTPError: Could not download data from API.
+            IOError: Rates file could not be read/written.
         """
         # Get data from API.
         if source == 'api':
             rates_json = urllib2.urlopen(self.rates_url).read()
-            return json.loads(rates_json)
+            return self._edit_rates_dict(json.loads(rates_json))
 
         # Get data from rates file.
         if source == 'file' or source == 'file_no_update':
@@ -113,13 +152,32 @@ class CurrencyConverter(object):
         if source == 'api_save':
             try:
                 rates_json = urllib2.urlopen(self.rates_url).read()
+                rates_dict = self._edit_rates_dict(json.loads(rates_json))
+                final_json = json.dumps(rates_dict)
                 with open(self.rates_filepath, 'w') as rates_file:
-                    rates_file.write(rates_json)
-                return json.loads(rates_json)
-            # If there is no connection, at least return last known rates.
-            except Exception:
+                    rates_file.write(final_json)
+                return rates_dict
+            # If there is no answer or file write is impossible, at least return last known rates.
+            except (urllib2.HTTPError, IOError):
                 with open(self.rates_filepath) as rates_file:
                     return json.load(rates_file)
 
         else:
             raise ValueError("Unsupported way of getting rates.")
+
+    @staticmethod
+    def _edit_rates_dict(r_dict):
+        """
+        Edit rates dictionary so it contains only necessary items in a suitable format.
+
+        Args:
+            r_dict (dict): Result from API.
+
+        Returns:
+            Normalized dict with fields: "base", "timestamp", "rates"
+        """
+        # Remove unnecessary items
+        r_dict.pop("disclaimer")
+        r_dict.pop("license")
+        # result
+        return r_dict

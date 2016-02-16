@@ -1,6 +1,7 @@
 import os
 
 from src.CurrencyConverter import CurrencyConverter
+import currency_converter
 
 # Get API key from config file
 with open('config.txt') as config_file:
@@ -17,5 +18,7 @@ result = converter.convert(10, 'EUR', 'CZK')
 #result = converter.convert(10, 'EUR', 'EFKA')
 #result = converter.convert(10, 'EUR')
 #result = converter.convert(100, 'CZK', 'USD')
+
+#print(currency_converter.convert_money(10,'EUR'))
 
 print(result)

@@ -23,8 +23,10 @@ API key is saved in `/config.txt` file which is not present in this repository.
 
 The script checks if the entered currency codes exist and if the input amount is a number.
 
+NOTE: Currencies on FOREX markets are traded in pairs, so the result might not be exactly the same as if the suitable base (other than USD) could be used.
+
 ### Exchange rates
-Because the "Forever Free" API plan has a limit of 1000 requests per month, the script was developed by parsing downloaded JSON input from API.
+Because the "Forever Free" API plan has a limit of 1000 requests per month, the script was developed by parsing downloaded JSON output from API.
 To make the script more useful/interesting, there are two basic ways, how the script gets the rates to work with.
 The behaviour is determined in the `currency_converter.py` while creating the main object:
 `converter = CurrencyConverter(app_id, <rates_read_mode>, <rates_filepath>)`
@@ -35,6 +37,9 @@ The behaviour is determined in the `currency_converter.py` while creating the ma
 3. "file_no_update" ... JSON file, but with no update (useful for tests).
 
 The constructor checks validity of the entered read modes and if rates file exists (if it's entered).
+
+This way the solution can be used to serve far more than 1000 requests/month.
+Of course, a better solution than simple text file would be necessary in a real world scenario (i.e. Redis or other in-memory storage), but this is out of the scope of this assignment.
 
 ## Tests
 Tests can be performed by running `cc_test.py`.
