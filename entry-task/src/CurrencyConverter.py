@@ -93,7 +93,7 @@ class CurrencyConverter(object):
         # If currency symbol is entered, find the coresponding code.
         if input_cur not in rates:
             input_cur = self.currency_symbols[input_cur]
-        if output_cur not in rates:
+        if output_cur is not False and output_cur not in rates:
             output_cur = self.currency_symbols[output_cur]
 
         # Calc amount in the base currency.

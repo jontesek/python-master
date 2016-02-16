@@ -25,11 +25,11 @@ converter = CurrencyConverter(app_id, 'file_no_update', symbols_filepath, rates_
 #result = converter.convert(100, 'CZK', 'USD')
 
 # Symbols test
-result = converter.convert(10, '€', 'CZK')
-result = converter.convert(111, 'CZK', '€')
-result = converter.convert(111, 'Kč', '€')
-result = converter.convert(500.5, '¥', '$')
-result = converter.convert(1000, '₸', 'zł')
+#result = converter.convert(10, '€', 'CZK')
+#result = converter.convert(111.88, 'CZK', '€')
+#result = converter.convert(111, 'Kč', '€')
+#result = converter.convert(500.5, '¥', '$')
+result = converter.convert(1000, '৳', 'zł')
 
 # JSON
 print(result)

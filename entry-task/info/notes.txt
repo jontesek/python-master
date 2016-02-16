@@ -25,3 +25,6 @@ base_amount = in_amount / (usd->eur) = 10 / 0.885991 = 11.286796
 
 out_amount = base_amount * out_rate = 11.286796 * 23.94491 = 270.261314
 
+====Currency symbols====
+https://en.wikipedia.org/wiki/List_of_circulating_currencies
+
