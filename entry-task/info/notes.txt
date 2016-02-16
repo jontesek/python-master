@@ -1,5 +1,11 @@
 NOTES
 
+===Run script===
+cd C:\Users\Jontes\Documents\programovani\PyCharmProjects\python-master>
+python entry-task\currency_converter.py --amount 100.57 --input_currency € --output_currency Kč
+
+
+
 ===APIs===
 https://currencylayer.com/
 
@@ -27,4 +33,4 @@ out_amount = base_amount * out_rate = 11.286796 * 23.94491 = 270.261314
 
 ====Currency symbols====
 https://en.wikipedia.org/wiki/List_of_circulating_currencies
-
+https://en.wikipedia.org/wiki/Currency_symbol#List_of_presently-circulating_currency_symbols

@@ -18,12 +18,23 @@ Run `currency_converter.py` with following parameters:
 The script uses [Open Exchange Rates](https://openexchangerates.org) API (free version) to get current exchange rates with base in USD.
 API key is saved in `/config.txt` file which is not present in this repository.
 #### Amount calculation
-1. Convert input amount to correct (base) amount in USD (rounded to 6 decimal places).
-2. Convert base amount to amount in output currency (rounded to 2 decimal places).
+1. Convert input amount to correct (base) amount in USD.
+2. Convert base amount to amount in output currency.
 
 The script checks if the entered currency codes exist and if the input amount is a number.
 
 NOTE: Currencies on FOREX markets are traded in pairs, so the result might not be exactly the same as if the suitable base (other than USD) could be used.
+
+### Curency symbols
+The requirement was to allow entering also currency codes (such as $ or €). Unlike for currency codes, there is no standard for symbols.
+Firstly was parsed [Currency symbol](https://en.wikipedia.org/wiki/Currency_symbol#List_of_presently-circulating_currency_symbols) Wiki page and all symbols of mentioned currencies were downloaded (see `cur_symbols/parse_wiki.py`).
+Later was discovered [another Wiki page](https://en.wikipedia.org/wiki/List_of_circulating_currencies) with a list for every country.
+
+The list was merged and checked with the aforementioned symbols and the final TXT file was created (see `cur_symbols/currency_symbols.txt`).
+The file is read in constructor, where a dictionary (currency symbol -\> currency code) is created and made available for use in application.
+But the problem is reading symbols from terminal - if the terminal does not use UTF-8 encoding, it's impossible.'
+
+NOTE: Iranian rial (IRR) and Yemeni rial (YER) have unfortunately exactly the same symbol. So it was determined that in the final Python dictionary will be only IRR present.
 
 ### Exchange rates
 Because the "Forever Free" API plan has a limit of 1000 requests per month, the script was developed by parsing downloaded JSON output from API.

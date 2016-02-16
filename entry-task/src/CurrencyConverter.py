@@ -26,7 +26,7 @@ class CurrencyConverter(object):
             raise ValueError("Rates_read_move invalid value.")
         # Check if symbols file exists.
         if not os.path.isfile(symbols_filepath):
-            raise IOError('Wrong path to the Currency symbols file: ' + rates_filepath, 3)
+            raise IOError('Wrong path to the Currency symbols file: ' + symbols_filepath, 3)
         # Check if rates file is set, it exists.
         if rates_filepath and not os.path.isfile(rates_filepath):
             raise IOError('Wrong path to the Rates file: ' + rates_filepath, 1)
@@ -38,7 +38,6 @@ class CurrencyConverter(object):
         self.rates_filepath = rates_filepath
         self.rates_read_mode = rates_read_mode
         self.currency_symbols = self._read_currency_symbols(symbols_filepath)
-
 
     def convert(self, in_amount, input_cur, output_cur=False):
         """
@@ -82,10 +81,10 @@ class CurrencyConverter(object):
 
         # Check if input currency is valid.
         if input_cur not in rates and input_cur not in self.currency_symbols:
-            raise ValueError("Unknown input currency code/symbol entered.", 5)
+            raise ValueError("Unknown input currency code/symbol entered: " + input_cur, 5)
         # Check if output currency is valid.
         if output_cur is not False and (output_cur not in rates and output_cur not in self.currency_symbols):
-            raise ValueError("Unknown output currency code/symbol entered.", 5)
+            raise ValueError("Unknown output currency code/symbol entered: " + output_cur, 5)
         # Check if the input amount is a number.
         if not isinstance(in_amount, (int, long, float)):
             raise ValueError("Input amount is not a number.", 6)
@@ -97,7 +96,7 @@ class CurrencyConverter(object):
             output_cur = self.currency_symbols[output_cur]
 
         # Calc amount in the base currency.
-        base_amount = round(in_amount / rates[input_cur], 6)
+        base_amount = float(in_amount) / rates[input_cur]
 
         # Calculate amount in the output currency/all currencies (based on amount in base currency).
         out_amounts = {}

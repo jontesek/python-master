@@ -13,10 +13,10 @@ with open(os.path.abspath(current_dir+'/config.txt')) as config_file:
 
 # Set filepaths
 rates_filepath = os.path.abspath(current_dir+'/rates_files/latest.json')
-symbols_filepath = os.path.abspath(current_dir+'/rates_files/currency_symbols.csv')
+symbols_filepath = os.path.abspath(current_dir+'/cur_symbols/currency_symbols.txt')
 
 # Create the main object.
-converter = CurrencyConverter(app_id, "file", rates_filepath)
+converter = CurrencyConverter(app_id, "file", symbols_filepath, rates_filepath)
 
 
 # If the file was imported (as module).
