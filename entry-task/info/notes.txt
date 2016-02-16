@@ -1,7 +1,7 @@
 NOTES
 
 ===Run script===
-cd C:\Users\Jontes\Documents\programovani\PyCharmProjects\python-master>
+cd C:\Users\Jontes\Documents\programovani\PyCharmProjects\python-master
 python entry-task\currency_converter.py --amount 100.57 --input_currency € --output_currency Kč
 
 

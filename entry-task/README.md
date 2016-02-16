@@ -32,7 +32,7 @@ Later was discovered [another Wiki page](https://en.wikipedia.org/wiki/List_of_c
 
 The list was merged and checked with the aforementioned symbols and the final TXT file was created (see `cur_symbols/currency_symbols.txt`).
 The file is read in constructor, where a dictionary (currency symbol -\> currency code) is created and made available for use in application.
-But the problem is reading symbols from terminal - if the terminal does not use UTF-8 encoding, it's impossible.'
+But the problem is reading symbols from terminal, if the terminal does not use UTF-8 encoding (Windows). I tried to solve it but with no success. On Linux (Ubuntu) the symbols are processed with no problems.
 
 NOTE: Iranian rial (IRR) and Yemeni rial (YER) have unfortunately exactly the same symbol. So it was determined that in the final Python dictionary will be only IRR present.
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import os
+import sys
 
 from src.CurrencyConverter import CurrencyConverter
 
@@ -28,6 +29,9 @@ if __name__ == '__main__':
     # Module required command line parsing.
     import argparse
 
+    # Save terminal encoding
+    terminal_encoding = sys.stdin.encoding
+
     # Parse the incoming arguments
     # example 1: ./currency_converter.py --amount 100.0 --input_currency EUR --output_currency CZK
     # example 2: ./currency_converter.py --amount 0.9 --input_currency ¥ --output_currency AUD
@@ -46,11 +50,10 @@ if __name__ == '__main__':
     try:
         # Check if an output currency is set.
         if args.output_currency:
-            result = converter.convert(float(args.amount), args.input_currency, args.output_currency)
+            result = converter.convert(float(args.amount), args.input_currency, args.output_currency, terminal_encoding)
         else:
-            result = converter.convert(float(args.amount), args.input_currency)
+            result = converter.convert(float(args.amount), args.input_currency, False, terminal_encoding)
     except Exception, e:
-        print(e)
         raise SystemExit(e)
 
     # show result

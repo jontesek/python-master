@@ -4,6 +4,10 @@ import urllib2
 import time
 import os.path
 
+# workaround for microsoft encoding
+import codecs
+codecs.register(lambda name: codecs.lookup('utf-8') if name == 'cp65001' else None)
+
 
 class CurrencyConverter(object):
 
@@ -39,15 +43,16 @@ class CurrencyConverter(object):
         self.rates_read_mode = rates_read_mode
         self.currency_symbols = self._read_currency_symbols(symbols_filepath)
 
-    def convert(self, in_amount, input_cur, output_cur=False):
+    def convert(self, in_amount, input_cur, output_cur=False, terminal_encoding=False):
         """
         Convert given amount of money in input currency to actual amount of money in output currency.
         If output currency parameter is missing, convert to all known currencies.
 
         Args:
             in_amount (float | int): Amount of money to convert.
-            input_cur (string): From currency (3 letter code).
-            output_cur (string | False): To currency (3 letter code).
+            input_cur (string): From currency (3 letter code or currency symbol).
+            output_cur (string | False): To currency (3 letter code or currency symbol).
+            terminal_encoding (string | False): Encoding of the input_cur and output_cur parameters (default is utf-8).
 
         Returns:
             JSON string in the following format:
@@ -78,6 +83,11 @@ class CurrencyConverter(object):
 
         # Get main values
         rates = rates_data['rates']
+
+        # If needed, decode input values.
+        if terminal_encoding:
+            input_cur = unicode(input_cur, terminal_encoding).encode('utf-8')
+            output_cur = unicode(output_cur, terminal_encoding).encode('utf-8')
 
         # Check if input currency is valid.
         if input_cur not in rates and input_cur not in self.currency_symbols:
