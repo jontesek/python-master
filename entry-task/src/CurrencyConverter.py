@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import json
 import urllib2
 import time
@@ -6,7 +7,7 @@ import os.path
 
 class CurrencyConverter(object):
 
-    def __init__(self, app_id, rates_read_mode, rates_filepath=False):
+    def __init__(self, app_id, rates_read_mode, symbols_filepath, rates_filepath=False):
         """
         Args:
             app_id (string): API key for openexchangerates.org.
@@ -19,11 +20,13 @@ class CurrencyConverter(object):
         """
         # Set the correct API URL
         self.rates_url = 'https://openexchangerates.org/api/latest.json?app_id='+app_id
-
         ## PARAMETERS CHECK
         # Check rates_read_move validity.
         if rates_read_mode not in ['file', 'file_no_update', 'api']:
             raise ValueError("Rates_read_move invalid value.")
+        # Check if symbols file exists.
+        if not os.path.isfile(symbols_filepath):
+            raise IOError('Wrong path to the Currency symbols file: ' + rates_filepath, 3)
         # Check if rates file is set, it exists.
         if rates_filepath and not os.path.isfile(rates_filepath):
             raise IOError('Wrong path to the Rates file: ' + rates_filepath, 1)
@@ -34,6 +37,8 @@ class CurrencyConverter(object):
         # Set variables.
         self.rates_filepath = rates_filepath
         self.rates_read_mode = rates_read_mode
+        self.currency_symbols = self._read_currency_symbols(symbols_filepath)
+
 
     def convert(self, in_amount, input_cur, output_cur=False):
         """
@@ -58,7 +63,7 @@ class CurrencyConverter(object):
             }
 
         Raises:
-            ValueError: Unknown currency code. | Input is not a number. | Invalid JSON response or file.
+            ValueError: Unknown currency code or symbol. | Input is not a number. | Invalid JSON response or file.
             urllib2.HTTPError: Could not download data from the API.
             IOError: Could not read Rates file.
         """
@@ -75,13 +80,21 @@ class CurrencyConverter(object):
         # Get main values
         rates = rates_data['rates']
 
-        # Check if currency codes are valid.
-        if input_cur not in rates or (output_cur is not False and output_cur not in rates):
-            raise ValueError("Unknow currency code entered.", 5)
-
+        # Check if input currency is valid.
+        if input_cur not in rates and input_cur not in self.currency_symbols:
+            raise ValueError("Unknown input currency code/symbol entered.", 5)
+        # Check if output currency is valid.
+        if output_cur is not False and (output_cur not in rates and output_cur not in self.currency_symbols):
+            raise ValueError("Unknown output currency code/symbol entered.", 5)
         # Check if the input amount is a number.
         if not isinstance(in_amount, (int, long, float)):
             raise ValueError("Input amount is not a number.", 6)
+
+        # If currency symbol is entered, find the coresponding code.
+        if input_cur not in rates:
+            input_cur = self.currency_symbols[input_cur]
+        if output_cur not in rates:
+            output_cur = self.currency_symbols[output_cur]
 
         # Calc amount in the base currency.
         base_amount = round(in_amount / rates[input_cur], 6)
@@ -181,3 +194,32 @@ class CurrencyConverter(object):
         r_dict.pop("license")
         # result
         return r_dict
+
+    @staticmethod
+    def _read_currency_symbols(symbols_filepath):
+        """
+        Read currency symbols from a file and returns them as dictionary.
+
+        Args:
+            symbols_filepath (string): Absolute filepath to the currency symbols file.
+
+        Returns:
+            Dictionary with symbol as key and currency code as value. Example:
+            {
+                '€': 'EUR',
+                '¥': 'JPY',
+            }
+        """
+        # Open file
+        c_file = open(symbols_filepath)
+        c_file.readline()  # skip header line
+        # Read symbols into dict
+        symbols = {}
+        for line in c_file:
+            l_items = line.split('\t')
+            c_code = l_items[0].strip()
+            c_symbol = l_items[1].strip()
+            symbols[c_symbol] = c_code
+        c_file.close()
+        # Result
+        return symbols
