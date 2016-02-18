@@ -4,8 +4,6 @@ NOTES
 cd C:\Users\Jontes\Documents\programovani\PyCharmProjects\python-master
 python entry-task\currency_converter.py --amount 100.57 --input_currency € --output_currency Kč
 
-
-
 ===APIs===
 https://currencylayer.com/
 
@@ -14,7 +12,6 @@ https://openexchangerates.org/
 http://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html (also i.e. through http://fixer.io/).
 
 ===JSON===
-
 Using json.tool from the shell to validate and pretty-print:
 
 $ echo '{"json":"obj"}' | python -mjson.tool

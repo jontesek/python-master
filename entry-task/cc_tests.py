@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import unittest
 import os.path
@@ -18,14 +18,19 @@ with open(os.path.abspath(current_dir+'/config.txt')) as config_file:
 
 # Test class
 class TestCurrencyConverter(unittest.TestCase):
+    """
+    Performs tests for public methods of CurrencyConverter class - constructor and convert method.
+    Uses pre-defined rates file so the exchange rates do not change and therefore results can be checked.
+    """
 
     def setUp(self):
+        """Create an object which will be used for testing convert() method."""
         self.c_converter = CurrencyConverter(app_id, 'file_no_update', symbols_filepath, rates_filepath)
 
-    # Test constructor
+    # Test constructor - exceptions
 
     def test_construct_1(self):
-        """If rates file is set, but does not exists, raise an exception."""
+        """If rates file is set, but does not exist, raise an exception."""
         with self.assertRaises(IOError) as context:
             CurrencyConverter(app_id, 'file', symbols_filepath, 'XYZ.XXX')
         self.assertTrue(1 in context.exception)
@@ -43,13 +48,21 @@ class TestCurrencyConverter(unittest.TestCase):
         self.assertTrue(3 in context.exception)
 
     def test_construct_4(self):
+        """If invalid rates read mode is entered, raise an exception."""
+        with self.assertRaises(ValueError) as context:
+            CurrencyConverter(app_id, 'fXXXile', symbols_filepath, rates_filepath)
+        self.assertTrue(4 in context.exception)
+
+    # Test constructor - normal operation
+
+    def test_construct_5(self):
         """Rates file is set and exists."""
         try:
             CurrencyConverter(app_id, 'file', symbols_filepath, rates_filepath)
         except Exception, e:
             self.fail(e)
 
-    def test_construct_5(self):
+    def test_construct_6(self):
         """Rates file is missing and rates_rad_mode is set to 'api'."""
         try:
             CurrencyConverter(app_id, 'api', symbols_filepath)
@@ -98,7 +111,7 @@ class TestCurrencyConverter(unittest.TestCase):
             msg = 'Convert() method does not return JSON string with necessary fields.\n' + str(e)
             self.fail(msg)
 
-    # Test convert method - no output set -> all currencies
+    # Test convert method: If no output currency set, convert to all currencies.
 
     def test_convert_c1(self):
         """Convert EUR to all currencies."""
@@ -157,6 +170,12 @@ class TestCurrencyConverter(unittest.TestCase):
         dict_data = json.loads(self.c_converter.convert(1000, '৳', 'zł'))
         out_amount = dict_data['output']['PLN']
         self.assertEqual(out_amount, 49.65)
+
+    def test_convert_s6(self):
+        """£ (GBP) to all currencies."""
+        dict_data = json.loads(self.c_converter.convert(11.11, '£', False))
+        out_amounts = dict_data['output']
+        self.assertGreater(len(out_amounts), 100)
 
 
 # Run all tests when the file is run from terminal.

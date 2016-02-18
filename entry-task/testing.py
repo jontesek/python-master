@@ -1,10 +1,12 @@
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 import os
 
 from src.CurrencyConverter import CurrencyConverter
 
 #import currency_converter
-#print(currency_converter.convert_money(10,'EUR'))
+#print(currency_converter.convert_money(10, '£', '€'))
+#exit()
 
 # Get API key from config file
 with open('config.txt') as config_file:
@@ -16,7 +18,7 @@ rates_filepath = os.path.abspath(current_dir+'/rates_files/latest.json')
 symbols_filepath = os.path.abspath(current_dir+'/cur_symbols/currency_symbols.txt')
 
 # The main object
-converter = CurrencyConverter(app_id, 'file_no_update', symbols_filepath, rates_filepath)
+converter = CurrencyConverter(app_id, 'file', symbols_filepath, rates_filepath)
 
 # Codes test
 #result = converter.convert(10, 'EUR', 'CZK')
@@ -29,7 +31,7 @@ converter = CurrencyConverter(app_id, 'file_no_update', symbols_filepath, rates_
 #result = converter.convert(111.88, 'CZK', '€')
 #result = converter.convert(111, 'Kč', '€')
 #result = converter.convert(500.5, '¥', '$')
-result = converter.convert(1000, '৳', 'zł')
+result = converter.convert(1000, ' ৳\t', 'zł')
 
 # JSON
 print(result)
