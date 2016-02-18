@@ -30,6 +30,7 @@ The script checks on input:
 2. Convert base amount to amount in output currency.
 
 _Example for 10 EUR -> CZK_:
+
 1. How many dollars do I need to buy 10 euros? 10 / 0.9 = 11.1111111111 ... B (1 USD = 0.90 EUR)
 2. How many CZK do I get for B dollars? B * 24.26 = 269.55 (1 USD = 24.26 CZK)
 
