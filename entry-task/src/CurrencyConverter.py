@@ -29,7 +29,7 @@ class CurrencyConverter(object):
             IndexError: Currency symbols file could not be properly parsed.
         """
         # Set the correct API URL
-        self.rates_url = 'https://Xopenexchangerates.org/api/latest.json?app_id='+app_id
+        self.rates_url = 'https://openexchangerates.org/api/latest.json?app_id='+app_id
 
         # PARAMETERS CHECK
         # Check rates_read_mode validity.
@@ -64,10 +64,10 @@ class CurrencyConverter(object):
         If output currency parameter is missing, convert the amount to all known currencies.
 
         Args:
-            in_amount (float | int): Amount of money to convert.
+            in_amount (string | float | int): Amount of money to convert.
             input_cur (string): From currency (3 letter currency code or currency symbol).
             output_cur (string | None): To currency (3 letter currency code or currency symbol).
-            terminal_encoding (string | None): Encoding of the input_cur and output_cur parameters (default is utf-8).
+            terminal_encoding (string | None): Encoding of the input_cur and output_cur parameters (default is UTF-8).
 
         Returns:
             JSON string in the following format (example for EUR -> CZK conversion):
@@ -82,12 +82,22 @@ class CurrencyConverter(object):
             }
 
         Raises:
-            ValueError: Unknown currency code or symbol. | Input is not a number. | Invalid JSON response or file.
+            ValueError: Input amount is not a number. | Input amount cannot be less than zero.
+                Unknown currency code or symbol. | Invalid JSON response or file.
             urllib2.HTTPError: Could not download data from the API.
             urllib2.URLError: No internet connection / invalid domain name in API URL.
             IOError: Could not read Rates file.
         """
-        # Get current exchange rates
+        # Firstly check if the input amount is a number (can be converted to float).
+        try:
+            in_amount = float(in_amount)
+        except ValueError:
+            raise ValueError("Input amount is not a number: " + str(in_amount), 6)
+        # Only numbers >= 0 have sense (IMHO).
+        if in_amount < 0:
+            raise ValueError("Input amount cannot be less than zero: " + str(in_amount), 7)
+
+        # Get current exchange rates.
         try:
             rates_data = self._get_rates(self.rates_read_mode)
         except urllib2.HTTPError, e:
@@ -103,9 +113,12 @@ class CurrencyConverter(object):
         # Select exchange rates
         rates = rates_data['rates']
 
-        # Remove surrounding whitespace characters from inputs.
+        # A) PROCESS currency codes/symbols
+
+        # Remove possible surrounding whitespace characters from currency inputs.
         input_cur = input_cur.strip()
-        output_cur = output_cur.strip()
+        if output_cur:
+            output_cur = output_cur.strip()
 
         # If run from terminal, decode input values. Necessary only for reading symbols from Windows terminal.
         if terminal_encoding:
@@ -119,9 +132,6 @@ class CurrencyConverter(object):
         # Check if output currency is valid.
         if output_cur and (output_cur not in rates and output_cur not in self.currency_symbols):
             raise ValueError("Unknown output currency code/symbol entered: " + output_cur, 5)
-        # Check if the input amount is a number.
-        if not isinstance(in_amount, (int, long, float)):
-            raise ValueError("Input amount is not a number: " + in_amount, 6)
 
         # If currency symbol is entered, find the coresponding code.
         if input_cur not in rates:
@@ -129,13 +139,13 @@ class CurrencyConverter(object):
         if output_cur and output_cur not in rates:
             output_cur = self.currency_symbols[output_cur]
 
-        # AMOUNT CALCULATION
-        # Example for 10 EUR -> CZK:
+        # B) CALCULATE AMOUNT
+        # Example for 10 EUR  -> CZK:
         #   1. How many dollars do I need to buy 10 euros? 10 / 0.9 = 11.1111111111 ... B (1 USD = 0.90 EUR)
         #   2. How many CZK do I get for B dollars? B * 24.26 = 269.55 (1 USD = 24.26 CZK)
 
         # Calculate amount in the base currency.
-        base_amount = float(in_amount) / rates[input_cur]
+        base_amount = in_amount / rates[input_cur]
 
         # Calculate amount in the output currency/all currencies (based on the amount in the base currency).
         out_amounts = {}
@@ -177,8 +187,9 @@ class CurrencyConverter(object):
             }
 
         Raises:
-            ValueError: No JSON object could be decoded -> invalid JSON response or file. | Invalid source parameter
+            ValueError: No JSON object could be decoded -> invalid JSON response or file. | Invalid source parameter.
             urllib2.HTTPError: Could not download data from API.
+            urllib2.URLError: No internet connection / invalid domain name in API URL.
             IOError: Rates file could not be read/written.
         """
         # Get data from API.
@@ -219,8 +230,8 @@ class CurrencyConverter(object):
             with open(self.rates_filepath, 'w') as rates_file:
                 rates_file.write(final_json)
             return rates_dict
-        # If there is no answer or file write is impossible, at least return last known rates.
-        except (urllib2.HTTPError, IOError):
+        # If there is no answer from server or file write is impossible, at least return last known rates.
+        except (urllib2.URLError, urllib2.HTTPError, IOError):
             with open(self.rates_filepath) as rates_file:
                 return json.load(rates_file)
 

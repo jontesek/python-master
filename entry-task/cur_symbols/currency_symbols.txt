@@ -32,6 +32,7 @@ GTQ	Q
 HRK	kn
 HTG	G
 HUF	Ft
+CHF	SFr.
 IDR	Rp
 ILS	₪
 INR	₹

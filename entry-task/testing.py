@@ -31,7 +31,8 @@ converter = CurrencyConverter(app_id, 'file', symbols_filepath, rates_filepath)
 #result = converter.convert(111.88, 'CZK', '€')
 #result = converter.convert(111, 'Kč', '€')
 #result = converter.convert(500.5, '¥', '$')
-result = converter.convert(1000, ' ৳\t', 'zł')
+result = converter.convert("\t1000 ", ' ৳\t', '\tzł ')
+#result = converter.convert(10.04, '€', 'SFr.')
 
 # JSON
 print(result)

@@ -89,6 +89,12 @@ class TestCurrencyConverter(unittest.TestCase):
             self.c_converter.convert(10, 'EUR', 'XCZK')
         self.assertTrue(5 in context.exception)
 
+    def test_convert_e4(self):
+        """When input amount is less than zero, raise an exception."""
+        with self.assertRaises(ValueError) as context:
+            self.c_converter.convert('-10.25', 'EUR', 'CZK')
+        self.assertTrue(7 in context.exception)
+
     # Test convert method - returned JSON
 
     def test_convert_json(self):
